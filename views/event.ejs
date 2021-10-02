@@ -63,7 +63,7 @@
 </html>
 
 <script type="text/javascript">
-   
+    getEvents();
     $('#eventSubmit').on('click', function(e) {
         e.preventDefault();
         var summary = $('#summary').val();
@@ -102,4 +102,36 @@
             });
         }
     });
+
+    $('#viewEvent').on('click', function(e) {
+        e.preventDefault();
+        getEvents();
+    });
+
+    function getEvents() {
+        $.ajax({
+            url: '/getevents',
+            method: 'GET',
+            headers: {
+                Authorization: $ `Bearer ${localStorage.getItem("access_token")}`
+            },
+            error: function(r) {},
+            success: function(r) {
+                console.log(r.result);
+                let html = '';
+                $.each(r.result, function(k, v) {
+                    html += '<div class="card">';
+                    html += '<div class="card-body">';
+                    html += '<h5 class="card-title">' + v.summary + '</h5>';
+                    html += '<p class="card-text">' + v.description + '</p>';
+                    html += '<p class="card-text">Location: ' + v.location + '</p>';
+                    html += '<p class="card-text">Start: ' + new Date(v.start.dateTime).toLocaleString() + ' End: ' + new Date(v.end.dateTime).toLocaleString() + '</p>';
+                    html += '<a target="_blank" href="' + v.htmlLink + '" class="card-link">view calender</a>';
+                    html += '</div></div></br>';
+                });
+
+                $("#saved_events").html(html);
+            }
+        });
+    }
 </script>

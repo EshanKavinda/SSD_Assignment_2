@@ -61,3 +61,45 @@
 </body>
 
 </html>
+
+<script type="text/javascript">
+   
+    $('#eventSubmit').on('click', function(e) {
+        e.preventDefault();
+        var summary = $('#summary').val();
+        var description = $('#description').val();
+        var location = $('#location').val();
+        var start = $('#start').val();
+        var end = $('#end').val();
+
+        if (summary == "" || summary == null || description == "" || description == null || location == "" || location == null || start == null || start == "" || end == "" || end == null) {
+            swal("warning", "Please fill all feilds", "warning");
+        } else {
+            $.ajax({
+                url: '/addEvent',
+                method: 'POST',
+                data: {
+                    summary: summary,
+                    description: description,
+                    location: location,
+                    start: start,
+                    end: end
+                },
+                headers: {
+                    Authorization: $ `Bearer ${localStorage.getItem("access_token")}`
+                },
+                error: function(r) {
+                    swal("Error", "Something Went Wrong... Try Again...", "error");
+                },
+                success: function(r) {
+                    if (r.result) {
+                        getEvents();
+                        swal("Success", "Event Created Successfully...", "success");
+                    } else {
+                        swal("Error", "Something Went Wrong...", "error");
+                    }
+                }
+            });
+        }
+    });
+</script>

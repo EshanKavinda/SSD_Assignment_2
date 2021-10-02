@@ -56,3 +56,52 @@ app.get("/api/event/oauthcallback", function(req, res) {
 app.listen(PORT, function() {
     console.log("listeneing on 4000 PORT");
 });
+
+// Adding an event to google calender 
+app.post("/addEvent", urlencodedParser, function(req, res) {
+
+    var body_data = JSON.stringify(req.body);
+    // console.log('request '+ body_data);
+
+    var objectVal = JSON.parse(body_data);
+    var summary = objectVal.summary;
+    var location = objectVal.location;
+    var description = objectVal.description;
+    var startTime = new Date(objectVal.start);
+    var endTime = new Date(objectVal.end);
+
+    const calendar = google.calendar({ version: 'v3', auth: client });
+
+    var event = {
+        summary: summary,
+        location: location,
+        description: description,
+        start: {
+            dateTime: startTime
+        },
+        end: {
+            dateTime: endTime
+        }
+    };
+
+    calendar.events.insert({
+            auth: client,
+            calendarId: 'primary',
+            resource: event
+        },
+        function(err, event) {
+            var result;
+            var url = "no";
+            if (err) {
+                console.log('There was an error occured while connecting too the calender API: ' + err);
+                result = false
+
+            } else {
+                console.log('Event created  successfully: %s', event.data.htmlLink);
+                result = true
+                url = event.data.htmlLink;
+            }
+            return res.json({ result: result, url: url });
+        }
+    );
+})
